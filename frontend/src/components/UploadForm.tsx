@@ -12,13 +12,14 @@ import {
   MAX_FILE_SIZE_BYTES,
   FILE_INPUT_ID,
 } from '../constants';
-import { uploadContract } from '../constants/endpoints';
+import { uploadContractStream } from '../constants/endpoints';
 import { formatFileSize } from '../utils';
 
 interface UploadFormProps {
   loading: boolean;
   onLoadingChange: (loading: boolean) => void;
   onStart: () => void;
+  onStatus: (status: string) => void;
   onSuccess: (result: ContractAnalysis, fileName: string) => void;
   onError: (message: string) => void;
 }
@@ -29,6 +30,7 @@ export function UploadForm({
   loading,
   onLoadingChange,
   onStart,
+  onStatus,
   onSuccess,
   onError,
 }: UploadFormProps): ReactElement {
@@ -66,7 +68,13 @@ export function UploadForm({
     if (!file) return;
     onStart();
     onLoadingChange(true);
-    const result = await uploadContract(file);
+    const result = await uploadContractStream(file, (event) => {
+      if (event.type === 'status') {
+        onStatus(event.stage === 'extracting' ? 'Extracting text…' : 'Analysing with AI…');
+      } else {
+        onStatus(`Analysing with AI… (${event.charsReceived} characters received)`);
+      }
+    });
     if (result.ok) {
       onSuccess(result.data, file.name);
       setFile(null);

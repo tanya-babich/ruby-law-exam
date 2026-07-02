@@ -10,6 +10,8 @@ function makeResult(overrides: Partial<ContractAnalysis> = {}): ContractAnalysis
     riskScore: 85,
     missingClauses: ['Confidentiality period'],
     recommendations: ['Add a governing law clause'],
+    riskyClauses: [],
+    documentText: 'This agreement may be terminated by either party without notice.',
     ...overrides,
   };
 }
@@ -69,5 +71,34 @@ describe('AnalysisResults', () => {
   it('shows a fallback message when there are no recommendations', () => {
     render(<AnalysisResults result={makeResult({ recommendations: [] })} fileName="c.pdf" />);
     expect(screen.getByText('No recommendations.')).toBeInTheDocument();
+  });
+
+  it('highlights a risky clause excerpt within the document text', () => {
+    render(
+      <AnalysisResults
+        result={makeResult({
+          documentText: 'This agreement may be terminated by either party without notice.',
+          riskyClauses: [
+            {
+              excerpt: 'terminated by either party without notice',
+              riskLevel: 'high',
+              reason: 'No notice period before termination',
+            },
+          ],
+        })}
+        fileName="c.pdf"
+      />
+    );
+
+    const highlighted = screen.getByText('terminated by either party without notice');
+    expect(highlighted.tagName).toBe('MARK');
+    expect(highlighted).toHaveAttribute('title', 'No notice period before termination');
+  });
+
+  it('does not render the document section when no risky clauses were found', () => {
+    render(<AnalysisResults result={makeResult({ riskyClauses: [] })} fileName="c.pdf" />);
+
+    expect(screen.queryByText('Document — Risky Clauses Highlighted')).not.toBeInTheDocument();
+    expect(screen.queryByText(/This agreement may be terminated/)).not.toBeInTheDocument();
   });
 });

@@ -14,6 +14,8 @@ const analysis: ContractAnalysis = {
   riskScore: 10,
   missingClauses: [],
   recommendations: [],
+  riskyClauses: [],
+  documentText: 'This is the contract text.',
 };
 
 describe('POST /api/contracts/upload', () => {
@@ -79,6 +81,39 @@ describe('POST /api/contracts/upload', () => {
 
     expect(res.status).toBe(500);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('streams SSE events when the client sends Accept: text/event-stream', async () => {
+    vi.mocked(contractService.analyseContractStreaming).mockImplementation(
+      async (_buffer, _mimetype, onEvent) => {
+        onEvent({ type: 'status', stage: 'extracting' });
+        onEvent({ type: 'status', stage: 'analyzing' });
+        onEvent({ type: 'complete', data: analysis });
+        return analysis;
+      }
+    );
+
+    const res = await request(app)
+      .post('/api/contracts/upload')
+      .set('Accept', 'text/event-stream')
+      .attach('file', Buffer.from('%PDF-1.4 fake'), {
+        filename: 'contract.pdf',
+        contentType: 'application/pdf',
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toContain('text/event-stream');
+
+    const events = res.text
+      .trim()
+      .split('\n\n')
+      .map((line) => JSON.parse(line.replace(/^data: /, '')));
+
+    expect(events).toEqual([
+      { type: 'status', stage: 'extracting' },
+      { type: 'status', stage: 'analyzing' },
+      { type: 'complete', data: analysis },
+    ]);
   });
 });
 

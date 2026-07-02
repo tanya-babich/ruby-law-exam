@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import type { ContractAnalysis } from '../types';
 import type { ContractType, RiskClassConfig, RiskLevel } from '../types/interface';
 import { getRiskLevel } from '../utils';
+import { HighlightedDocument } from './HighlightedDocument';
 
 interface AnalysisResultsProps {
   result: ContractAnalysis;
@@ -136,6 +137,15 @@ export function AnalysisResults({
           </div>
         </section>
       </div>
+
+      {result.riskyClauses.length > 0 && (
+        <section className="mt-6">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+            Document — Risky Clauses Highlighted
+          </h3>
+          <HighlightedDocument text={result.documentText} riskyClauses={result.riskyClauses} />
+        </section>
+      )}
     </div>
   );
 }

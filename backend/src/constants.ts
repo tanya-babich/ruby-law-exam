@@ -15,6 +15,7 @@ export const AI_MODEL = 'gpt-4o-mini';
 export const AI_TEMPERATURE = 0.1;
 
 export const HTTP_STATUS = {
+  OK: 200,
   CREATED: 201,
   BAD_REQUEST: 400,
   NOT_FOUND: 404,

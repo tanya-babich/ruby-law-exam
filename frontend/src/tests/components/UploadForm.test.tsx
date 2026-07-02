@@ -2,11 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UploadForm } from '../../components/UploadForm';
-import { uploadContract } from '../../constants/endpoints';
+import { uploadContractStream } from '../../constants/endpoints';
 import type { ContractAnalysis } from '../../types';
 
 vi.mock('../../constants/endpoints', () => ({
-  uploadContract: vi.fn(),
+  uploadContractStream: vi.fn(),
 }));
 
 function makeFile(name: string, type: string, sizeBytes: number): File {
@@ -22,6 +22,7 @@ function renderForm() {
     loading: false,
     onLoadingChange: vi.fn(),
     onStart: vi.fn(),
+    onStatus: vi.fn(),
     onSuccess: vi.fn(),
     onError: vi.fn(),
   };
@@ -35,6 +36,8 @@ const analysis: ContractAnalysis = {
   riskScore: 10,
   missingClauses: [],
   recommendations: [],
+  riskyClauses: [],
+  documentText: 'This is the contract text.',
 };
 
 describe('UploadForm', () => {
@@ -72,7 +75,7 @@ describe('UploadForm', () => {
   });
 
   it('submits the file and reports success', async () => {
-    vi.mocked(uploadContract).mockResolvedValue({ ok: true, data: analysis });
+    vi.mocked(uploadContractStream).mockResolvedValue({ ok: true, data: analysis });
 
     const user = userEvent.setup();
     const props = renderForm();
@@ -89,7 +92,7 @@ describe('UploadForm', () => {
   });
 
   it('submits the file and reports a server error', async () => {
-    vi.mocked(uploadContract).mockResolvedValue({ ok: false, error: 'Upload failed' });
+    vi.mocked(uploadContractStream).mockResolvedValue({ ok: false, error: 'Upload failed' });
 
     const user = userEvent.setup();
     const props = renderForm();
@@ -101,5 +104,26 @@ describe('UploadForm', () => {
     await waitFor(() => expect(props.onError).toHaveBeenCalledWith('Upload failed'));
     expect(props.onSuccess).not.toHaveBeenCalled();
     expect(props.onLoadingChange).toHaveBeenCalledWith(false);
+  });
+
+  it('reports live status text as SSE progress events arrive', async () => {
+    vi.mocked(uploadContractStream).mockImplementation(async (_file, onProgress) => {
+      onProgress({ type: 'status', stage: 'extracting' });
+      onProgress({ type: 'status', stage: 'analyzing' });
+      onProgress({ type: 'progress', charsReceived: 42 });
+      return { ok: true, data: analysis };
+    });
+
+    const user = userEvent.setup();
+    const props = renderForm();
+    const input = document.getElementById('file-input') as HTMLInputElement;
+    selectFile(input, makeFile('contract.pdf', 'application/pdf', 100));
+
+    await user.click(screen.getByRole('button', { name: 'Analyse Contract' }));
+
+    await waitFor(() => expect(props.onSuccess).toHaveBeenCalled());
+    expect(props.onStatus).toHaveBeenCalledWith('Extracting text…');
+    expect(props.onStatus).toHaveBeenCalledWith('Analysing with AI…');
+    expect(props.onStatus).toHaveBeenCalledWith('Analysing with AI… (42 characters received)');
   });
 });

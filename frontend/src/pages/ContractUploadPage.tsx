@@ -8,11 +8,13 @@ export function ContractUploadPage(): ReactElement {
   const [fileName, setFileName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState('Uploading…');
 
   const handleStart = () => {
     setResult(null);
     setFileName(null);
     setError(null);
+    setStatus('Uploading…');
   };
 
   const handleSuccess = (data: ContractAnalysis, name: string) => {
@@ -42,6 +44,7 @@ export function ContractUploadPage(): ReactElement {
             loading={loading}
             onLoadingChange={setLoading}
             onStart={handleStart}
+            onStatus={setStatus}
             onSuccess={handleSuccess}
             onError={handleError}
           />
@@ -49,7 +52,7 @@ export function ContractUploadPage(): ReactElement {
           {loading && (
             <div className="mt-5 flex items-center gap-3 px-4 py-3 bg-indigo-50 border border-indigo-200 rounded-xl text-indigo-700 text-sm font-medium">
               <span className="h-4 w-4 border-2 border-indigo-300 border-t-indigo-600 rounded-full animate-spin" />
-              Analysing your contract…
+              {status}
             </div>
           )}
 

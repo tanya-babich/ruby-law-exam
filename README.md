@@ -94,7 +94,7 @@ npm run lint     # ESLint, must pass with no errors
 npx tsc --noEmit # TypeScript strict type-check
 ```
 
-The frontend has the same `lint` script (`cd frontend && npm run lint`); it currently has no unit tests since all business logic (extraction, AI calls, validation) lives in the backend service layer.
+The frontend has the same `lint` and `test` scripts (`cd frontend && npm run lint` / `npm test`, Vitest + Testing Library) covering `UploadForm`, `AnalysisResults`, `ContractUploadPage`, and the `uploadContract` API helper — most business logic (extraction, AI calls, validation) still lives in the backend service layer, but the frontend's own upload/render/error-mapping logic is covered too.
 
 ---
 
