@@ -1,16 +1,30 @@
-// TODO: implement text extraction from PDF and DOCX buffers
-// Suggested libraries: pdf-parse (PDF), mammoth (DOCX)
+import pdfParse from 'pdf-parse';
+import mammoth from 'mammoth';
+import { MIME } from '../constants';
+import { ContractProcessingError } from '../errors';
 
 export async function extractText(buffer: Buffer, mimetype: string): Promise<string> {
-  if (mimetype === 'application/pdf') {
-    // TODO: use pdf-parse to extract text
-    throw new Error('PDF extraction not implemented yet');
+  if (mimetype === MIME.PDF) {
+    try {
+      const data = await pdfParse(buffer);
+      return data.text;
+    } catch (err) {
+      throw new ContractProcessingError(
+        `Failed to parse PDF: ${err instanceof Error ? err.message : 'unknown error'}`
+      );
+    }
   }
 
-  if (mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-    // TODO: use mammoth to extract text
-    throw new Error('DOCX extraction not implemented yet');
+  if (mimetype === MIME.DOCX) {
+    try {
+      const result = await mammoth.extractRawText({ buffer });
+      return result.value;
+    } catch (err) {
+      throw new ContractProcessingError(
+        `Failed to parse DOCX: ${err instanceof Error ? err.message : 'unknown error'}`
+      );
+    }
   }
 
-  throw new Error(`Unsupported file type: ${mimetype}`);
+  throw new ContractProcessingError(`Unsupported file type: ${mimetype}`);
 }

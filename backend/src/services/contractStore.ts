@@ -1,4 +1,8 @@
 import type { ContractAnalysis } from '../types';
 
-// Simple in-memory store — replace with a database if needed
-export const contractStore = new Map<string, ContractAnalysis>();
+const store = new Map<string, ContractAnalysis>();
+
+export const contractStore = {
+  get: (id: string): ContractAnalysis | undefined => store.get(id),
+  set: (id: string, record: ContractAnalysis): void => { store.set(id, record); },
+};

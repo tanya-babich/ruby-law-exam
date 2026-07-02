@@ -1,27 +1,27 @@
-import { Request, Response } from 'express';
-import { analyseContract } from '../services/contractService';
-import { contractStore } from '../services/contractStore';
+import { Request, Response, NextFunction } from 'express';
+import { analyseContract, getContractById } from '../services/contractService';
+import { HttpError } from '../errors';
+import { HTTP_STATUS, ERROR_CODES } from '../constants';
 
-export async function uploadContract(req: Request, res: Response): Promise<void> {
+export async function uploadContract(req: Request, res: Response, next: NextFunction): Promise<void> {
   if (!req.file) {
-    res.status(400).json({ error: { code: 'NO_FILE', message: 'No file uploaded' } });
+    next(new HttpError(HTTP_STATUS.BAD_REQUEST, ERROR_CODES.NO_FILE, 'No file uploaded'));
     return;
   }
 
   try {
-    const result = await analyseContract(req.file.buffer, req.file.mimetype, req.file.originalname);
-    res.status(201).json({ data: result });
+    const result = await analyseContract(req.file.buffer, req.file.mimetype);
+    res.status(HTTP_STATUS.CREATED).json(result);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Analysis failed';
-    res.status(500).json({ error: { code: 'ANALYSIS_FAILED', message } });
+    next(err);
   }
 }
 
-export function getContract(req: Request, res: Response): void {
-  const record = contractStore.get(req.params['id'] ?? '');
+export function getContract(req: Request, res: Response, next: NextFunction): void {
+  const record = getContractById(req.params.id);
   if (!record) {
-    res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Contract not found' } });
+    next(new HttpError(HTTP_STATUS.NOT_FOUND, ERROR_CODES.NOT_FOUND, 'Contract not found'));
     return;
   }
-  res.json({ data: record });
+  res.json(record);
 }

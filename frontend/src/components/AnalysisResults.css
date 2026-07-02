@@ -1,0 +1,124 @@
+.results {
+  margin-top: 2rem;
+}
+
+.results__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.results__badge {
+  color: #fff;
+  padding: 0.3rem 0.85rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.01em;
+}
+
+.results__filename {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.results__risk-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  margin-bottom: 1.75rem;
+  border: 2px solid transparent;
+}
+
+.results__risk-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.results__risk-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  margin-top: 0.15rem;
+}
+
+.results__risk-score {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.results__risk-max {
+  color: #94a3b8;
+  font-size: 1rem;
+}
+
+.results__risk-pill {
+  color: #fff;
+  padding: 0.15rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-left: 0.25rem;
+}
+
+/* risk level colours */
+.results__risk-card--low  { border-color: #16a34a; }
+.results__risk-score--low { color: #16a34a; }
+.results__risk-pill--low  { background: #16a34a; }
+
+.results__risk-card--medium  { border-color: #d97706; }
+.results__risk-score--medium { color: #d97706; }
+.results__risk-pill--medium  { background: #d97706; }
+
+.results__risk-card--high  { border-color: #dc2626; }
+.results__risk-score--high { color: #dc2626; }
+.results__risk-pill--high  { background: #dc2626; }
+
+.results__section {
+  margin-bottom: 1.75rem;
+}
+
+.results__section h3 {
+  margin: 0 0 0.75rem;
+  color: #1e293b;
+  font-size: 1rem;
+}
+
+.results__none {
+  margin: 0;
+  font-weight: 500;
+}
+
+.results__none--ok {
+  color: #16a34a;
+}
+
+.results__none--neutral {
+  color: #64748b;
+}
+
+.results__list {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.results__list li {
+  margin-bottom: 0.4rem;
+}
+
+.results__list--missing li {
+  color: #dc2626;
+}
+
+.results__list--recommendations li {
+  color: #374151;
+}
