@@ -44,7 +44,13 @@ the document as risky based on clauses you can quote but then omit them from ris
 
 Step 3 — type: one of ${CONTRACT_TYPES_PROMPT_LIST}
 
-Step 4 — missingClauses: array of strings — standard clauses missing for this contract type
+Step 4 — missingClauses: array of strings — standard clauses missing for this contract type. Always
+check for, at minimum: termination (notice periods, grounds for dismissal), dispute resolution /
+governing law, and confidentiality — plus, when relevant to the contract type: IP / invention
+assignment and post-termination restraint of trade (Employment), indemnification and insurance
+(Service Agreement), and renewal/exit terms (Lease). Do not skip a clause from this list just
+because a related one is present — e.g. a restraint-of-trade clause does not substitute for a
+missing termination clause.
 
 Step 5 — recommendations: array of plain-English strings to reduce legal risk
 
